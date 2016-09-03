@@ -1,2 +1,4 @@
 psd-tools
 Pillow
+pdfminer
+beautifulsoup4

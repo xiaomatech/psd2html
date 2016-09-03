@@ -2,7 +2,7 @@ from psd_tools import PSDImage
 import psd_tools.user_api.psd_image
 import json
 import os
-
+import pinyin
 
 class ImportPSD(object):
     """ Will Parse a PSD and store its data """
@@ -16,6 +16,8 @@ class ImportPSD(object):
         self.PSDFilePath = PSDFilePath
         self.imagePath = imagePath
         self.psd = PSDImage.load(PSDFilePath)
+        self.headers = self.psd.header
+        self.layers = self.psd.layers
         self.nb_layers = self.countLayers(layers=self.psd.layers)
         print "Layers to process: %d" % self.nb_layers
 
@@ -59,6 +61,7 @@ class ImportPSD(object):
                     """ If it's an image """
                     psd_name = os.path.basename(self.PSDFilePath)[:-4]
                     imageName = 'images/' + psd_name + '_' + sheet.name + '_' + parentName + '.png'
+                    imageName = pinyin.get(imageName, format="strip")
                     if sheet is not None and sheet.as_PIL() is not None:
                         sheet.as_PIL().save(self.imagePath + imageName)
                     else:
@@ -82,13 +85,16 @@ class ImportPSD(object):
 
 
 def run(psd_file, image_folder='./output/'):
-    image_folder_res = image_folder + '/psd2json/'
+    image_folder_res = image_folder + '/json/'
     if os.path.exists(image_folder_res) is False:
         os.makedirs(image_folder_res)
     image_folder_image = image_folder + '/images/'
     if os.path.exists(image_folder_image) is False:
         os.makedirs(image_folder_image)
     importedPSD = ImportPSD(PSDFilePath=psd_file, imagePath=image_folder)
+    print importedPSD.headers
+    print importedPSD.layers
+    sys.exit()
     importedPSD.parse()
     jsonString = importedPSD.toJson()
     result_file = os.path.basename(psd_file)[:-4]
@@ -96,8 +102,20 @@ def run(psd_file, image_folder='./output/'):
         fout.writelines(jsonString)
     image_dict = json.loads(jsonString)
     for item in image_dict['pages']:
-        print item.get('images')
-        print item.get('paragraphs')
+        images = item.get('images')
+        if images is not None:
+            for image_file in images:
+                print image_file
+        paragraphs = item.get('paragraphs')
+        if paragraphs is not None:
+            for paragraph in paragraphs:
+                name = paragraph.get('name')
+                height = paragraph.get('height')
+                width = paragraph.get('width')
+                y = paragraph.get('y')
+                x = paragraph.get('x')
+                font = paragraph.get('font')
+                string = paragraph.get('string')
 
 
 if __name__ == '__main__':

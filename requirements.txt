@@ -2,3 +2,4 @@ psd-tools
 Pillow
 pdfminer
 beautifulsoup4
+pinyin

@@ -1,6 +1,7 @@
-from pdfreader.util.convert import converter
-from pdfreader.lib.book import book
+from pdfreader.convert import converter
+from pdfreader.book import book
 import subprocess
+
 
 def text_to_dict(fileinput):
     """
@@ -19,6 +20,8 @@ def text_to_dict(fileinput):
 Extracting the images out of the pdf file
 images are named respecting the following convention: tempppm-[pageNumber]-[imageNumber].ppm (eg: tempppm-001-000.ppm)
 """
+
+
 def extract_images(file):
     subprocess.call('/usr/local/bin/pdfimages -p -j ' + file + ' tempimg',
                     shell=True,

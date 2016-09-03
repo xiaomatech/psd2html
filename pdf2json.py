@@ -1,6 +1,6 @@
 from pdfreader.util.convert import converter
 from pdfreader.lib.book import book
-
+import subprocess
 
 def text_to_dict(fileinput):
     """
@@ -19,9 +19,6 @@ def text_to_dict(fileinput):
 Extracting the images out of the pdf file
 images are named respecting the following convention: tempppm-[pageNumber]-[imageNumber].ppm (eg: tempppm-001-000.ppm)
 """
-import subprocess
-
-
 def extract_images(file):
     subprocess.call('/usr/local/bin/pdfimages -p -j ' + file + ' tempimg',
                     shell=True,
@@ -90,7 +87,13 @@ def get_images_update_dict(dict_book, image_folder):
     return dict_book
 
 
-def run(pdf_file, image_folder):
+def run(pdf_file, image_folder='./output/'):
+    image_folder_res = image_folder + '/json/'
+    if os.path.exists(image_folder_res) is False:
+        os.makedirs(image_folder_res)
+    image_folder_image = image_folder + '/images/'
+    if os.path.exists(image_folder_image) is False:
+        os.makedirs(image_folder_image)
     print "Reading PDF"
     dict_book = text_to_dict(pdf_file)
     print "Extracting images"
@@ -101,7 +104,9 @@ def run(pdf_file, image_folder):
 
 if __name__ == '__main__':
     import sys
-    if len(sys.argv) == 3:
-        print run(pdf_file=sys.argv[1], image_folder=sys.argv[2])
+    if len(sys.argv) > 2:
+        print run(sys.argv[1], sys.argv[2])
+    elif len(sys.argv) == 2:
+        print run(sys.argv[1])
     else:
-        print "usage: python %s book.pdf './images/' " % sys.argv[0]
+        print "usage: python %s book.pdf './output/' " % sys.argv[0]
